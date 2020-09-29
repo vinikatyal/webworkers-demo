@@ -1,28 +1,26 @@
 import React, { memo, useState } from 'react';
-import processImage from './webWorkers';
+import StompClient from "react-stomp-client";
 
 function App() {
-  const [imageUrl, setImageUrl] = useState<File | any>();
-
-  async function setImage(selectorFiles: File[] | any) {
-    const file = selectorFiles[0];
-    const img: File | any = await processImage(file);
-    setImageUrl(img);
+  const [latestMessage, setMessage] = useState<string>();
+  function handleMessage(stompMessage: any) {
+    setMessage(stompMessage);
   }
+
   return (
     <>
-      Process image
-      <div>
-        <input
-          onChange={e => setImage(e.target.files)}
-          type="file"
-          accept="image/*"
-          name="image"
-          id="image"
-        />
-        <label>Open Image</label>
-      </div>
-      <div>{imageUrl && imageUrl.size}</div>
+      Websocket demo
+      <StompClient
+        endpoint="wss://javascript.info/article/websocket/demo/hello"
+        topic="my-topic"
+        onMessage={handleMessage}
+      >
+        <div>
+          {latestMessage
+            ? `Latest message received: ${latestMessage}`
+            : "No message received yet"}
+        </div>
+      </StompClient>
     </>
   );
 }
